@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(
-    page_title="Tomatazos en el teatro PRO 03",
+    page_title="Tomatazos en el teatro PRO 04",
     page_icon="🍅",
     layout="centered"
 )
@@ -31,7 +31,7 @@ st.markdown("""
         line-height: 1.05 !important;
         margin-bottom: 0.05rem !important;
         text-shadow: 1px 1px 0 #4a0000;
-}
+    }
 }
 
 h1 {
@@ -42,7 +42,7 @@ h1 {
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🍅 Tomatazos en el teatro PRO 03")
+st.title("🍅 Tomatazos en el teatro PRO 04")
 
 st.markdown(
     """
@@ -193,7 +193,7 @@ button {
 
     #touchBar {
         gap: 6px !important;
-        margin-top: 6px !important;
+        margin-top: 5px !important;
     }
 
     #btnLeft, #btnRight {
@@ -243,8 +243,10 @@ button {
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const BASE_W = 900;
-const BASE_H = 650;
+const BASE_W = 1000;
+const BASE_H = 560;
+const LOGICAL_W = 900;
+const LOGICAL_H = 650;
 
 canvas.width = BASE_W;
 canvas.height = BASE_H;
@@ -266,7 +268,7 @@ window.addEventListener("resize", ajustarCanvas);
 window.addEventListener("orientationchange", () => setTimeout(ajustarCanvas, 150));
 ajustarCanvas();
 canvas.style.border = "4px solid #4a0000";
-canvas.style.borderRadius = "12px";
+canvas.style.borderRadius = "14px";
 canvas.style.background = "#e6d2aa";
 canvas.style.boxShadow = "0 8px 24px rgba(80, 0, 0, 0.35)";
 canvas.style.display = "block";
@@ -284,8 +286,8 @@ setInterval(() => {
     if (estado === "fin" || estado === "victoria" || estado === "cambio_nivel") enfocarCanvas();
 }, 350);
 
-const W = BASE_W;
-const H = BASE_H;
+const W = LOGICAL_W;
+const H = LOGICAL_H;
 
 let estado = "menu";
 let puntos = 0;
@@ -496,75 +498,80 @@ function dibujarParticulas() {
     });
 }
 
-function sonidoCambioNivel() {
+let audioCtx = null;
+
+function obtenerAudioCtx() {
     try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
+        if (!AudioCtx) return null;
 
-        const audio = new AudioCtx();
-        const notas = [523.25, 659.25, 783.99];
+        if (!audioCtx) {
+            audioCtx = new AudioCtx();
+        }
 
-        notas.forEach((freq, i) => {
-            const osc = audio.createOscillator();
-            const gain = audio.createGain();
-            osc.type = "triangle";
-            osc.frequency.value = freq;
-            osc.connect(gain);
-            gain.connect(audio.destination);
-            gain.gain.setValueAtTime(0.001, audio.currentTime + i * 0.09);
-            gain.gain.exponentialRampToValueAtTime(0.08, audio.currentTime + i * 0.09 + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + i * 0.09 + 0.16);
-            osc.start(audio.currentTime + i * 0.09);
-            osc.stop(audio.currentTime + i * 0.09 + 0.18);
-        });
+        if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+        }
+
+        return audioCtx;
+    } catch (err) {
+        return null;
+    }
+}
+
+function sonido(freq=520, tipo="sine", dur=0.06, vol=0.06) {
+    try {
+        const audio = obtenerAudioCtx();
+        if (!audio) return;
+
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+
+        osc.type = tipo;
+        osc.frequency.value = freq;
+
+        osc.connect(gain);
+        gain.connect(audio.destination);
+
+        const t = audio.currentTime;
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
     } catch (err) {}
+}
+
+function sonidoCambioNivel() {
+    const notas = [523.25, 659.25, 783.99];
+    notas.forEach((freq, i) => {
+        setTimeout(() => sonido(freq, "triangle", 0.14, 0.075), i * 85);
+    });
 }
 
 function sonidoLanzar() {
-    try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-
-        const audio = new AudioCtx();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-
-        osc.frequency.value = 720;
-        osc.type = "sine";
-        osc.connect(gain);
-        gain.connect(audio.destination);
-
-        gain.gain.setValueAtTime(0.001, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.08, audio.currentTime + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.055);
-
-        osc.start(audio.currentTime);
-        osc.stop(audio.currentTime + 0.06);
-    } catch (err) {}
+    sonido(760, "triangle", 0.055, 0.07);
 }
 
 function sonidoImpacto() {
-    try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-
-        const audio = new AudioCtx();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-
-        osc.frequency.value = 180;
-        osc.type = "square";
-        osc.connect(gain);
-        gain.connect(audio.destination);
-
-        gain.gain.setValueAtTime(0.001, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.05, audio.currentTime + 0.008);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.08);
-
-        osc.start(audio.currentTime);
-        osc.stop(audio.currentTime + 0.09);
-    } catch (err) {}
+    sonido(185, "square", 0.085, 0.055);
 }
+
+function sonidoDoble() {
+    sonido(880, "sine", 0.10, 0.065);
+    setTimeout(() => sonido(1120, "sine", 0.10, 0.055), 80);
+}
+
+function sonidoDanio() {
+    sonido(150, "sawtooth", 0.11, 0.06);
+}
+
+["click", "touchstart", "keydown"].forEach(ev => {
+    window.addEventListener(ev, () => {
+        obtenerAudioCtx();
+    }, {once:true, passive:false});
+});
 
 function efectoImpacto(x, y) {
     impactos.push({x: x, y: y, vida: 42, max: 42, r: 5});
@@ -668,6 +675,7 @@ function reiniciarNivel() {
 }
 
 function lanzarTomate() {
+    if (estado !== "jugando") return;
     sonidoLanzar();
     if (doble) {
         tomates.push({x: jugador.x + 9, y: jugador.y - 12, w: 15, h: 15});
@@ -703,17 +711,37 @@ function cajaTexto(x, y, w, h, color, borde=null) {
 }
 
 function teatro() {
-    ctx.fillStyle = "#e6d2aa";
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, "#f2dfbd");
+    grad.addColorStop(0.58, "#d7b886");
+    grad.addColorStop(0.59, "#9b5f2d");
+    grad.addColorStop(1, "#6e3619");
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
     ctx.fillStyle = "#9b5f2d";
     ctx.fillRect(0, 385, W, 265);
 
+    ctx.fillStyle = "rgba(255,255,255,0.12)";
+    for (let x = 120; x < W - 120; x += 90) {
+        ctx.fillRect(x, 397, 42, 20);
+    }
+
     ctx.fillStyle = "#140f0f";
     ctx.fillRect(0, 375, W, 10);
 
-    ctx.fillStyle = "#870000";
+    const cortina = ctx.createLinearGradient(0, 0, 90, 0);
+    cortina.addColorStop(0, "#4d0000");
+    cortina.addColorStop(0.45, "#9b0000");
+    cortina.addColorStop(1, "#5c0000");
+    ctx.fillStyle = cortina;
     ctx.fillRect(0, 0, 90, H);
+
+    const cortinaDer = ctx.createLinearGradient(W - 90, 0, W, 0);
+    cortinaDer.addColorStop(0, "#5c0000");
+    cortinaDer.addColorStop(0.55, "#9b0000");
+    cortinaDer.addColorStop(1, "#4d0000");
+    ctx.fillStyle = cortinaDer;
     ctx.fillRect(W - 90, 0, 90, H);
 
     ctx.fillStyle = "#6f0000";
@@ -726,11 +754,17 @@ function teatro() {
         ctx.fill();
     }
 
-    ctx.fillStyle = "rgba(80,0,0,0.25)";
-    ctx.fillRect(0, 0, 90, H);
-    ctx.fillRect(W - 90, 0, 90, H);
-}
+    ctx.fillStyle = "rgba(80,0,0,0.24)";
+    for (let x = 8; x < 86; x += 18) ctx.fillRect(x, 0, 7, H);
+    for (let x = W - 86; x < W - 8; x += 18) ctx.fillRect(x, 0, 7, H);
 
+    for (let x = 118; x < W - 118; x += 70) {
+        ctx.fillStyle = "rgba(255,225,120,0.85)";
+        ctx.beginPath();
+        ctx.arc(x, 381, 5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
 function persona(x, y, ropa, escala=1) {
     const cx = x + 25 * escala;
 
@@ -834,6 +868,7 @@ function actualizar() {
 
         if (a.y + a.h > 545) {
             vidas--;
+            sonidoDanio();
             a.y = 95;
             a.x = 130 + Math.random() * (W - 260);
         }
@@ -843,6 +878,7 @@ function actualizar() {
     huevos = huevos.filter(h => {
         if (colision(h, jugador)) {
             vidas--;
+            sonidoDanio();
             return false;
         }
         return h.y < H;
@@ -877,6 +913,7 @@ function actualizar() {
         if (colision(b, jugador)) {
             doble = true;
             dobleHasta = Date.now() + 8000;
+            sonidoDoble();
             return false;
         }
         return b.y < H;
@@ -886,6 +923,7 @@ function actualizar() {
     penalizaciones = penalizaciones.filter(p => {
         if (colision(p, jugador)) {
             vidas--;
+            sonidoDanio();
             return false;
         }
         return p.y < H;
@@ -916,25 +954,25 @@ function actualizar() {
 }
 
 function dibujarHUD() {
-    cajaTexto(105, 12, 690, 62, "rgba(230,210,170,0.88)", "#780000");
+    cajaTexto(100, 10, 700, 56, "rgba(230,210,170,0.90)", "#780000");
 
     ctx.textAlign = "left";
-    ctx.font = "bold 22px Trebuchet MS, Verdana, Arial";
+    ctx.font = "bold 20px Trebuchet MS, Verdana, Arial";
     ctx.fillStyle = "#141414";
-    ctx.fillText(`Puntos: ${puntos}`, 130, 40);
-    ctx.fillText(`Vidas: ${vidas}`, 295, 40);
-    ctx.fillText(`Nivel: ${nivel}`, 425, 40);
-    ctx.fillText(`Ronda: ${puntosNivel}/${objetivoNivel()}`, 540, 40);
+    ctx.fillText(`Puntos: ${puntos}`, 124, 36);
+    ctx.fillText(`Vidas: ${vidas}`, 280, 36);
+    ctx.fillText(`Nivel: ${nivel}`, 405, 36);
+    ctx.fillText(`Ronda: ${puntosNivel}/${objetivoNivel()}`, 520, 36);
 
     ctx.textAlign = "right";
-    ctx.font = "bold 18px Trebuchet MS, Verdana, Arial";
+    ctx.font = "bold 17px Trebuchet MS, Verdana, Arial";
     ctx.fillStyle = "#780000";
-    ctx.fillText(`🏆 ${record}`, 770, 38);
+    ctx.fillText(`🏆 ${record}`, 775, 34);
 
     if (doble) {
         const quedan = Math.max(0, Math.ceil((dobleHasta - Date.now()) / 1000));
         ctx.fillStyle = "#1eaa55";
-        ctx.fillText(`⚡ Doble: ${quedan}s`, 770, 64);
+        ctx.fillText(`⚡ Doble: ${quedan}s`, 775, 58);
     }
 }
 
@@ -1063,10 +1101,13 @@ function dibujarFinal() {
 }
 
 function dibujar() {
+    ctx.save();
+    ctx.scale(BASE_W / W, BASE_H / H);
     if (estado === "menu") dibujarMenu();
     else if (estado === "jugando") dibujarJuego();
     else if (estado === "cambio_nivel") dibujarCambioNivel();
     else dibujarFinal();
+    ctx.restore();
 }
 
 function loop() {
