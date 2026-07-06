@@ -19,6 +19,19 @@ st.markdown("""
     max-width: 980px;
 }
 
+@media (max-width: 760px) {
+    .block-container {
+        padding-left: 0.15rem;
+        padding-right: 0.15rem;
+        padding-top: 0.15rem;
+    }
+
+    h1 {
+        font-size: 1.25rem !important;
+        line-height: 1.15 !important;
+    }
+}
+
 h1 {
     text-align: center;
     color: #f5e0b8;
@@ -30,6 +43,15 @@ h1 {
 st.title("🍅 Tomatazos en el teatro PRO 03")
 
 components.html("""
+<style>
+@media (max-width: 760px) {
+    #levelBar button { padding: 7px 12px !important; font-size: 14px !important; }
+    #touchBar { justify-content: center !important; gap: 6px !important; margin-top: 8px !important; }
+    #btnLeft, #btnRight { width: 62px !important; height: 50px !important; font-size: 25px !important; }
+    #btnShoot { min-width: 132px !important; height: 50px !important; font-size: 16px !important; }
+    p { font-size: 13px !important; margin-top: 6px !important; }
+}
+</style>
 <div style="width:100%; display:flex; justify-content:center;">
     <canvas id="game" tabindex="0"></canvas>
 </div>
@@ -38,7 +60,13 @@ components.html("""
     <button id="btnStart" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#1eaa55; color:white; cursor:pointer; touch-action:manipulation;">ENTER / Continuar</button>
 </div>
 
-<div style="width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px; max-width:860px; margin-left:auto; margin-right:auto;">
+<div id="levelBar" style="width:100%; display:flex; justify-content:center; gap:8px; margin-top:8px; flex-wrap:wrap;">
+    <button id="btnNivel1" style="font-family:Arial; font-weight:bold; padding:8px 14px; border-radius:999px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">Nivel 1</button>
+    <button id="btnNivel2" style="font-family:Arial; font-weight:bold; padding:8px 14px; border-radius:999px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">Nivel 2</button>
+    <button id="btnNivel3" style="font-family:Arial; font-weight:bold; padding:8px 14px; border-radius:999px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">Nivel 3</button>
+</div>
+
+<div id="touchBar" style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:10px; max-width:860px; margin-left:auto; margin-right:auto;">
     <div style="display:flex; gap:8px;">
         <button id="btnLeft" style="font-family:Arial; font-weight:bold; font-size:28px; width:72px; height:56px; border-radius:12px; border:3px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:none; user-select:none;">←</button>
         <button id="btnRight" style="font-family:Arial; font-weight:bold; font-size:28px; width:72px; height:56px; border-radius:12px; border:3px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:none; user-select:none;">→</button>
@@ -62,6 +90,21 @@ canvas.height = BASE_H;
 
 canvas.style.width = "min(94vw, 860px)";
 canvas.style.height = "auto";
+
+const esMovil = window.matchMedia("(max-width: 760px)").matches || ("ontouchstart" in window);
+
+function ajustarCanvas() {
+    const anchoMax = Math.min(window.innerWidth * 0.94, 860);
+    const altoPorAncho = anchoMax * (BASE_H / BASE_W);
+    const altoMax = esMovil ? Math.min(window.innerHeight * 0.54, 500) : 650;
+    const altoFinal = Math.min(altoPorAncho, altoMax);
+    const anchoFinal = altoFinal * (BASE_W / BASE_H);
+    canvas.style.width = `${Math.floor(anchoFinal)}px`;
+    canvas.style.height = `${Math.floor(altoFinal)}px`;
+}
+
+window.addEventListener("resize", ajustarCanvas);
+ajustarCanvas();
 canvas.style.border = "4px solid #4a0000";
 canvas.style.borderRadius = "12px";
 canvas.style.background = "#e6d2aa";
@@ -126,9 +169,9 @@ function manejarTecla(e) {
     }
 
     if (estado === "menu") {
-        if (e.key === "1") nivelElegido = 1;
-        if (e.key === "2") nivelElegido = 2;
-        if (e.key === "3") nivelElegido = 3;
+        if (e.key === "1") elegirNivel(1);
+        if (e.key === "2") elegirNivel(2);
+        if (e.key === "3") elegirNivel(3);
         if (e.code === "Enter") nuevaPartida(nivelElegido);
         return;
     }
@@ -168,6 +211,9 @@ const btnStart = document.getElementById("btnStart");
 const btnLeft = document.getElementById("btnLeft");
 const btnRight = document.getElementById("btnRight");
 const btnShoot = document.getElementById("btnShoot");
+const btnNivel1 = document.getElementById("btnNivel1");
+const btnNivel2 = document.getElementById("btnNivel2");
+const btnNivel3 = document.getElementById("btnNivel3");
 
 function bloquearToque(e) {
     if (e && e.cancelable) e.preventDefault();
@@ -178,6 +224,25 @@ function pulsarDireccion(tecla, activo, e) {
     teclas[tecla] = activo;
     enfocarCanvas();
 }
+
+function pintarBotonesNivel() {
+    [btnNivel1, btnNivel2, btnNivel3].forEach((b, i) => {
+        const activo = nivelElegido === i + 1;
+        b.style.background = activo ? "#1eaa55" : "#f5e0b8";
+        b.style.color = activo ? "white" : "#780000";
+    });
+}
+
+function elegirNivel(n) {
+    nivelElegido = n;
+    pintarBotonesNivel();
+    enfocarCanvas();
+}
+
+btnNivel1.addEventListener("click", () => elegirNivel(1));
+btnNivel2.addEventListener("click", () => elegirNivel(2));
+btnNivel3.addEventListener("click", () => elegirNivel(3));
+pintarBotonesNivel();
 
 function disparoTactil(e) {
     bloquearToque(e);
@@ -851,4 +916,4 @@ function loop() {
 
 loop();
 </script>
-""", height=800, scrolling=False)
+""", height=760, scrolling=False)
