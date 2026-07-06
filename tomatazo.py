@@ -14,42 +14,72 @@ st.markdown("""
 }
 
 .block-container {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    max-width: 980px;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    max-width: 1060px;
 }
 
 @media (max-width: 760px) {
     .block-container {
-        padding-left: 0.15rem;
-        padding-right: 0.15rem;
-        padding-top: 0.15rem;
+        padding-left: 0.05rem;
+        padding-right: 0.05rem;
+        padding-top: 0.05rem;
     }
 
     h1 {
-        font-size: 1.25rem !important;
-        line-height: 1.15 !important;
+        font-size: 1.15rem !important;
+        line-height: 1.05 !important;
+        margin-bottom: 0.05rem !important;
     }
 }
 
 h1 {
     text-align: center;
     color: #f5e0b8;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.15rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("🍅 Tomatazos en el teatro PRO 03")
 
+st.markdown(
+    """
+    <div style="
+        text-align:center;
+        color:#f0d250;
+        font-size:16px;
+        font-weight:bold;
+        margin-bottom:10px;">
+        Desarrollado por Jesús Platero
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 components.html("""
 <style>
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
 @media (max-width: 760px) {
-    #levelBar button { padding: 7px 12px !important; font-size: 14px !important; }
-    #touchBar { justify-content: center !important; gap: 6px !important; margin-top: 8px !important; }
-    #btnLeft, #btnRight { width: 62px !important; height: 50px !important; font-size: 25px !important; }
-    #btnShoot { min-width: 132px !important; height: 50px !important; font-size: 16px !important; }
-    p { font-size: 13px !important; margin-top: 6px !important; }
+    canvas#game {
+        border-width: 3px !important;
+        border-radius: 10px !important;
+    }
+
+    #levelBar button { padding: 7px 10px !important; font-size: 13px !important; }
+    #touchBar { justify-content: center !important; gap: 6px !important; margin-top: 6px !important; }
+    #btnLeft, #btnRight { width: 76px !important; height: 60px !important; font-size: 30px !important; }
+    #btnShoot { min-width: 145px !important; height: 60px !important; font-size: 17px !important; }
+    p { display: none; }
 }
 </style>
 <div style="width:100%; display:flex; justify-content:center;">
@@ -88,15 +118,13 @@ const BASE_H = 650;
 canvas.width = BASE_W;
 canvas.height = BASE_H;
 
-canvas.style.width = "min(94vw, 860px)";
-canvas.style.height = "auto";
-
 const esMovil = window.matchMedia("(max-width: 760px)").matches || ("ontouchstart" in window);
 
 function ajustarCanvas() {
-    const anchoMax = Math.min(window.innerWidth * 0.94, 860);
+    const margenW = esMovil ? 0.99 : 0.94;
+    const anchoMax = esMovil ? window.innerWidth * margenW : Math.min(window.innerWidth * margenW, 1040);
+    const altoMax = esMovil ? window.innerHeight * 0.76 : Math.min(window.innerHeight * 0.72, 650);
     const altoPorAncho = anchoMax * (BASE_H / BASE_W);
-    const altoMax = esMovil ? Math.min(window.innerHeight * 0.54, 500) : 650;
     const altoFinal = Math.min(altoPorAncho, altoMax);
     const anchoFinal = altoFinal * (BASE_W / BASE_H);
     canvas.style.width = `${Math.floor(anchoFinal)}px`;
@@ -104,6 +132,7 @@ function ajustarCanvas() {
 }
 
 window.addEventListener("resize", ajustarCanvas);
+window.addEventListener("orientationchange", () => setTimeout(ajustarCanvas, 150));
 ajustarCanvas();
 canvas.style.border = "4px solid #4a0000";
 canvas.style.borderRadius = "12px";
