@@ -256,7 +256,7 @@ const esMovil = window.matchMedia("(max-width: 760px)").matches || ("ontouchstar
 function ajustarCanvas() {
     const margenW = esMovil ? 0.99 : 0.94;
     const anchoMax = esMovil ? window.innerWidth * margenW : Math.min(window.innerWidth * margenW, 1040);
-    const altoMax = esMovil ? window.innerHeight * 0.80 : Math.min(window.innerHeight * 0.74, 670);
+    const altoMax = esMovil ? window.innerHeight * 0.84 : Math.min(window.innerHeight * 0.74, 670);
     const altoPorAncho = anchoMax * (BASE_H / BASE_W);
     const altoFinal = Math.min(altoPorAncho, altoMax);
     const anchoFinal = altoFinal * (BASE_W / BASE_H);
@@ -819,24 +819,24 @@ function dibujarMenu() {
     teatro();
     publico();
 
-    cajaTexto(120, 76, 660, 480, "rgba(230,210,170,0.95)", "#780000");
+    cajaTexto(95, 60, 710, 500, "rgba(230,210,170,0.95)", "#780000");
 
-    texto("🍅 TOMATAZOS EN EL TEATRO 🍅", 132, "#780000", 30, true);
-    texto("Elige nivel antes de empezar", 174, "#555555", 21);
+    texto("🍅 TOMATAZOS EN EL TEATRO 🍅", 120, "#780000", 31, true);
+    texto("Elige nivel antes de empezar", 160, "#555555", 21);
 
-    texto(`Nivel elegido: ${nivelElegido}`, 220, "#a00000", 30, true);
-    texto(`🏆 Récord: ${record}`, 246, "#780000", 20, true);
+    texto(`Nivel elegido: ${nivelElegido}`, 206, "#a00000", 31, true);
+    texto(`🏆 Récord: ${record}`, 234, "#780000", 24, true);
 
-    texto("1  Suave: actores lentos y sin huevos", 270, "#141414", 21);
-    texto("2  Teatro hostil: actores con huevos", 306, "#141414", 21);
-    texto("3  Guerra total: más actores y más ataques", 342, "#141414", 21);
+    texto("1  Suave: actores lentos y sin huevos", 264, "#141414", 22);
+    texto("2  Teatro hostil: actores con huevos", 298, "#141414", 22);
+    texto("3  Guerra total: más actores y más ataques", 332, "#141414", 22);
 
-    texto("Pulsa 1, 2 o 3 para seleccionar", 396, "#326edc", 23, true);
-    texto("← → moverse    ESPACIO lanzar tomates    ENTER empezar/continuar", 436, "#141414", 21);
-    texto("Bonus verde con 2: doble tomate durante 8 segundos", 472, "#1eaa55", 19, true);
-    texto("Penalización negra o huevos: pierdes una vida", 504, "#141414", 19);
+    texto("Pulsa 1, 2 o 3 para seleccionar", 386, "#326edc", 24, true);
+    texto("← → moverse    ESPACIO lanzar tomates    ENTER empezar/continuar", 426, "#141414", 21);
+    texto("Bonus verde con 2: doble tomate durante 8 segundos", 462, "#1eaa55", 20, true);
+    texto("Penalización negra o huevos: pierdes una vida", 494, "#141414", 20);
 
-    texto("ENTER PARA COMENZAR", 606, "#1eaa55", 29, true);
+    texto("ENTER PARA COMENZAR", 604, "#1eaa55", 30, true);
 }
 
 function actualizar() {
