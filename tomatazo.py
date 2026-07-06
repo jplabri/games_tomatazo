@@ -30,7 +30,8 @@ st.markdown("""
         font-size: 1.15rem !important;
         line-height: 1.05 !important;
         margin-bottom: 0.05rem !important;
-    }
+        text-shadow: 1px 1px 0 #4a0000;
+}
 }
 
 h1 {
@@ -57,8 +58,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-components.html("""
-<style>
+components.html("""<style>
 html, body {
     margin: 0;
     padding: 0;
@@ -69,44 +69,175 @@ button {
     -webkit-tap-highlight-color: transparent;
 }
 
+#gameWrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#game {
+    display: block;
+    outline: none;
+    border: 4px solid #4a0000;
+    border-radius: 14px;
+    background: #e6d2aa;
+    box-shadow: 0 8px 24px rgba(80, 0, 0, 0.35);
+}
+
+.control-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.main-btn {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 2px solid #780000;
+    background: #f5e0b8;
+    color: #780000;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.green-btn {
+    background: #1eaa55;
+    color: white;
+}
+
+.level-btn {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 2px solid #780000;
+    background: #f5e0b8;
+    color: #780000;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+#touchBar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    margin-top: 9px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.touch-btn {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    border-radius: 13px;
+    border: 3px solid #780000;
+    background: #f5e0b8;
+    color: #780000;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+}
+
+#btnLeft, #btnRight {
+    font-size: 30px;
+    width: 76px;
+    height: 58px;
+}
+
+#btnShoot {
+    font-size: 18px;
+    min-width: 170px;
+    height: 58px;
+    background: #1eaa55;
+    color: white;
+}
+
+#helpText {
+    text-align: center;
+    color: #f5e0b8;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    margin-top: 7px;
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
 @media (max-width: 760px) {
-    canvas#game {
-        border-width: 3px !important;
-        border-radius: 10px !important;
+    #game {
+        border-width: 3px;
+        border-radius: 10px;
     }
 
-    #levelBar button { padding: 7px 10px !important; font-size: 13px !important; }
-    #touchBar { justify-content: center !important; gap: 6px !important; margin-top: 6px !important; }
-    #btnLeft, #btnRight { width: 76px !important; height: 60px !important; font-size: 30px !important; }
-    #btnShoot { min-width: 145px !important; height: 60px !important; font-size: 17px !important; }
-    p { display: none; }
+    .control-row {
+        gap: 6px;
+        margin-top: 5px;
+    }
+
+    .main-btn {
+        padding: 7px 11px !important;
+        font-size: 13px !important;
+    }
+
+    .level-btn {
+        padding: 7px 10px !important;
+        font-size: 13px !important;
+    }
+
+    #touchBar {
+        gap: 6px !important;
+        margin-top: 6px !important;
+    }
+
+    #btnLeft, #btnRight {
+        width: 76px !important;
+        height: 60px !important;
+        font-size: 30px !important;
+    }
+
+    #btnShoot {
+        min-width: 145px !important;
+        height: 60px !important;
+        font-size: 17px !important;
+    }
+
+    #helpText {
+        display: none;
+    }
 }
 </style>
-<div style="width:100%; display:flex; justify-content:center;">
+
+<div id="gameWrap">
     <canvas id="game" tabindex="0"></canvas>
 </div>
-<div style="width:100%; display:flex; justify-content:center; gap:10px; margin-top:8px; flex-wrap:wrap;">
-    <button id="btnMenu" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">M / Menú</button>
-    <button id="btnStart" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#1eaa55; color:white; cursor:pointer; touch-action:manipulation;">ENTER / Continuar</button>
+
+<div class="control-row">
+    <button id="btnMenu" class="main-btn">M / Menú</button>
+    <button id="btnStart" class="main-btn green-btn">ENTER / Continuar</button>
 </div>
 
-<div id="levelBar" style="width:100%; display:flex; justify-content:center; gap:8px; margin-top:8px; flex-wrap:wrap;">
-    <button id="btnNivel1" style="font-family:Arial; font-weight:bold; padding:8px 14px; border-radius:999px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">Nivel 1</button>
-    <button id="btnNivel2" style="font-family:Arial; font-weight:bold; padding:8px 14px; border-radius:999px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">Nivel 2</button>
-    <button id="btnNivel3" style="font-family:Arial; font-weight:bold; padding:8px 14px; border-radius:999px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">Nivel 3</button>
+<div id="levelBar" class="control-row">
+    <button id="btnNivel1" class="level-btn">Nivel 1</button>
+    <button id="btnNivel2" class="level-btn">Nivel 2</button>
+    <button id="btnNivel3" class="level-btn">Nivel 3</button>
 </div>
 
-<div id="touchBar" style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px; margin-top:10px; max-width:860px; margin-left:auto; margin-right:auto;">
-    <div style="display:flex; gap:8px;">
-        <button id="btnLeft" style="font-family:Arial; font-weight:bold; font-size:28px; width:72px; height:56px; border-radius:12px; border:3px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:none; user-select:none;">←</button>
-        <button id="btnRight" style="font-family:Arial; font-weight:bold; font-size:28px; width:72px; height:56px; border-radius:12px; border:3px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:none; user-select:none;">→</button>
+<div id="touchBar">
+    <div style="display:flex; gap:7px;">
+        <button id="btnLeft" class="touch-btn">←</button>
+        <button id="btnRight" class="touch-btn">→</button>
     </div>
-    <button id="btnShoot" style="font-family:Arial; font-weight:bold; font-size:18px; min-width:150px; height:56px; border-radius:12px; border:3px solid #780000; background:#1eaa55; color:white; cursor:pointer; touch-action:none; user-select:none;">🍅 DISPARAR</button>
+    <button id="btnShoot" class="touch-btn">🍅 DISPARAR</button>
 </div>
 
-<p style="text-align:center; color:#f5e0b8; font-family:Arial; margin-top:8px;">
-PC: haz clic dentro del juego. 1, 2 o 3 eligen nivel. ENTER empieza/continúa. ESPACIO dispara. Móvil: usa ← → y DISPARAR.
-</p>
+<p id="helpText">PC: clic dentro del juego. 1, 2 o 3 eligen nivel. ENTER empieza/continúa. ESPACIO dispara. Móvil: ← → y DISPARAR.</p>
 
 <script>
 const canvas = document.getElementById("game");
@@ -123,7 +254,7 @@ const esMovil = window.matchMedia("(max-width: 760px)").matches || ("ontouchstar
 function ajustarCanvas() {
     const margenW = esMovil ? 0.99 : 0.94;
     const anchoMax = esMovil ? window.innerWidth * margenW : Math.min(window.innerWidth * margenW, 1040);
-    const altoMax = esMovil ? window.innerHeight * 0.76 : Math.min(window.innerHeight * 0.72, 650);
+    const altoMax = esMovil ? window.innerHeight * 0.80 : Math.min(window.innerHeight * 0.74, 670);
     const altoPorAncho = anchoMax * (BASE_H / BASE_W);
     const altoFinal = Math.min(altoPorAncho, altoMax);
     const anchoFinal = altoFinal * (BASE_W / BASE_H);
@@ -137,6 +268,7 @@ ajustarCanvas();
 canvas.style.border = "4px solid #4a0000";
 canvas.style.borderRadius = "12px";
 canvas.style.background = "#e6d2aa";
+canvas.style.boxShadow = "0 8px 24px rgba(80, 0, 0, 0.35)";
 canvas.style.display = "block";
 canvas.style.outline = "none";
 
