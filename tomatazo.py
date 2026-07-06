@@ -33,13 +33,21 @@ components.html("""
 <div style="width:100%; display:flex; justify-content:center;">
     <canvas id="game" tabindex="0"></canvas>
 </div>
-<div style="width:100%; display:flex; justify-content:center; gap:10px; margin-top:8px;">
-    <button id="btnMenu" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer;">M / Menú</button>
-    <button id="btnStart" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#1eaa55; color:white; cursor:pointer;">ENTER / Continuar</button>
+<div style="width:100%; display:flex; justify-content:center; gap:10px; margin-top:8px; flex-wrap:wrap;">
+    <button id="btnMenu" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:manipulation;">M / Menú</button>
+    <button id="btnStart" style="font-family:Arial; font-weight:bold; padding:8px 16px; border-radius:8px; border:2px solid #780000; background:#1eaa55; color:white; cursor:pointer; touch-action:manipulation;">ENTER / Continuar</button>
+</div>
+
+<div style="width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px; max-width:860px; margin-left:auto; margin-right:auto;">
+    <div style="display:flex; gap:8px;">
+        <button id="btnLeft" style="font-family:Arial; font-weight:bold; font-size:28px; width:72px; height:56px; border-radius:12px; border:3px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:none; user-select:none;">←</button>
+        <button id="btnRight" style="font-family:Arial; font-weight:bold; font-size:28px; width:72px; height:56px; border-radius:12px; border:3px solid #780000; background:#f5e0b8; color:#780000; cursor:pointer; touch-action:none; user-select:none;">→</button>
+    </div>
+    <button id="btnShoot" style="font-family:Arial; font-weight:bold; font-size:18px; min-width:150px; height:56px; border-radius:12px; border:3px solid #780000; background:#1eaa55; color:white; cursor:pointer; touch-action:none; user-select:none;">🍅 DISPARAR</button>
 </div>
 
 <p style="text-align:center; color:#f5e0b8; font-family:Arial; margin-top:8px;">
-Haz clic dentro del juego. En el menú elige nivel con 1, 2 o 3. ENTER para empezar. ESPACIO solo lanza tomates.
+PC: haz clic dentro del juego. 1, 2 o 3 eligen nivel. ENTER empieza/continúa. ESPACIO dispara. Móvil: usa ← → y DISPARAR.
 </p>
 
 <script>
@@ -157,6 +165,44 @@ canvas.onkeyup = soltarTecla;
 
 const btnMenu = document.getElementById("btnMenu");
 const btnStart = document.getElementById("btnStart");
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+const btnShoot = document.getElementById("btnShoot");
+
+function bloquearToque(e) {
+    if (e && e.cancelable) e.preventDefault();
+}
+
+function pulsarDireccion(tecla, activo, e) {
+    bloquearToque(e);
+    teclas[tecla] = activo;
+    enfocarCanvas();
+}
+
+function disparoTactil(e) {
+    bloquearToque(e);
+    enfocarCanvas();
+    if (estado === "jugando") {
+        lanzarTomate();
+    }
+}
+
+btnLeft.addEventListener("touchstart", (e) => pulsarDireccion("ArrowLeft", true, e), {passive:false});
+btnLeft.addEventListener("touchend", (e) => pulsarDireccion("ArrowLeft", false, e), {passive:false});
+btnLeft.addEventListener("touchcancel", (e) => pulsarDireccion("ArrowLeft", false, e), {passive:false});
+btnLeft.addEventListener("mousedown", (e) => pulsarDireccion("ArrowLeft", true, e));
+btnLeft.addEventListener("mouseup", (e) => pulsarDireccion("ArrowLeft", false, e));
+btnLeft.addEventListener("mouseleave", (e) => pulsarDireccion("ArrowLeft", false, e));
+
+btnRight.addEventListener("touchstart", (e) => pulsarDireccion("ArrowRight", true, e), {passive:false});
+btnRight.addEventListener("touchend", (e) => pulsarDireccion("ArrowRight", false, e), {passive:false});
+btnRight.addEventListener("touchcancel", (e) => pulsarDireccion("ArrowRight", false, e), {passive:false});
+btnRight.addEventListener("mousedown", (e) => pulsarDireccion("ArrowRight", true, e));
+btnRight.addEventListener("mouseup", (e) => pulsarDireccion("ArrowRight", false, e));
+btnRight.addEventListener("mouseleave", (e) => pulsarDireccion("ArrowRight", false, e));
+
+btnShoot.addEventListener("touchstart", disparoTactil, {passive:false});
+btnShoot.addEventListener("mousedown", disparoTactil);
 
 btnMenu.addEventListener("click", () => {
     volverAlMenu();
@@ -805,4 +851,4 @@ function loop() {
 
 loop();
 </script>
-""", height=730, scrolling=False)
+""", height=800, scrolling=False)
